@@ -1,10 +1,10 @@
 package controller
 
-import skinny.logging.Logger
+//import skinny.logging.Logger
 import skinny.micro._
 
-object Web extends WebApp {
-  override protected val logger = Logger(this.getClass)
+class MyController extends WebApp {
+//  override protected val logger = Logger(this.getClass)
   get("/") {
     logger.info(s"`/` params: $params")
     s"HELLO!!!! cookie: ${cookies}, params: ${params}, request: ${request}, path: ${requestPath}"
