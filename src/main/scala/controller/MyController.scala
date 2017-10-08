@@ -20,6 +20,9 @@ class MyController extends AsyncWebApp {
     s"Hello, ${params.getOrElse("name", "Anonymous")}!\n"
   }
 
+}
+
+class TQController extends AsyncWebApp {
   get("/push") { implicit ctx =>
     logger.info(s"`/push` params: $params")
     val (key, value) = params.head
@@ -31,5 +34,6 @@ class MyController extends AsyncWebApp {
     logger.info(s"`/_ah/push_handlers/push` body: ${request.body}")
     "OK"
   }
+
 }
 

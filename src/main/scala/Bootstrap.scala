@@ -4,14 +4,16 @@ import skinny.micro._
 
 class Bootstrap extends skinny.micro.LifeCycle {
   override def init(ctx: ServletContext) {
-    web.mount(ctx)
+    myController.mount(ctx)
+    tqController.mount(ctx)
   }
 
 }
 
-private object web extends MyController
+private object myController extends MyController
+private object tqController extends TQController
 
 object Main extends App {
-  WebServer.mount(web).port(4567).start()
+  WebServer.mount(myController).mount(tqController).port(4567).start()
 }
 
