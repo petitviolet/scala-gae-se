@@ -9,13 +9,15 @@ lazy val gae_app = (project in file("."))
     )),
     name := "scala-gae-se",
     libraryDependencies ++= Seq(
-      "org.skinny-framework" %% "skinny-micro" % skinnyVersion,
-      "org.skinny-framework" %% "skinny-micro-server" % skinnyVersion,
-      "ch.qos.logback" % "logback-classic" % "1.2.3",
-      "javax.servlet" % "javax.servlet-api" % "3.1.0",
-      "com.google.appengine" % "appengine-api-1.0-sdk" % "1.9.57"
+      "org.skinny-framework" %% "skinny-micro" % skinnyVersion % Compile,
+      "org.skinny-framework" %% "skinny-micro-server" % skinnyVersion % Compile,
+      "ch.qos.logback" % "logback-classic" % "1.2.3" % Compile,
+      "javax.servlet" % "javax.servlet-api" % "3.1.0" % "container;provided;test"
+//      "com.google.appengine" % "appengine-api-1.0-sdk" % "1.9.57"
+  ,"org.mortbay.jetty" % "jetty" % "6.1.26" % "container"
     ),
 //    servletSettings,
     Nil
   )
+  .enablePlugins(AppenginePlugin)
 

@@ -1,7 +1,6 @@
-import javax.servlet.ServletContext
-
+import javax.servlet._
 import _root_.controller._
-import skinny.micro.WebServer
+import skinny.micro._
 
 class Bootstrap extends skinny.micro.LifeCycle {
   override def init(ctx: ServletContext) {
