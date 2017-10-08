@@ -1,16 +1,10 @@
 package controller
 
 //import skinny.logging.Logger
+import common.TaskQueueHelper
 import skinny.micro._
 
 class MyController extends AsyncWebApp {
-//  override protected val logger = Logger(this.getClass)
-  error {
-    case e =>
-      logger.error(e.getMessage, e)
-      throw e // re-throwing the exception keeps the response as status 500
-  }
-
   get("/") { implicit ctx =>
     logger.info(s"`/` params: $params")
     s"HELLO!!!! cookie: ${cookies}, params: ${params}, request: ${request}, path: ${requestPath}"
@@ -24,6 +18,18 @@ class MyController extends AsyncWebApp {
   get("/say-hello") { implicit ctx =>
     logger.info(s"`/say-hello` params: $params")
     s"Hello, ${params.getOrElse("name", "Anonymous")}!\n"
+  }
+
+  get("/push") { implicit ctx =>
+    logger.info(s"`/push` params: $params")
+    val (key, value) = params.head
+    TaskQueueHelper.pushTask(key, value)
+    s"pushed. $key = $value"
+  }
+
+  post("/_ah/push-handlers/push") { implicit ctx =>
+    logger.info(s"`/_ah/push_handlers/push` body: ${request.body}")
+    "OK"
   }
 }
 
