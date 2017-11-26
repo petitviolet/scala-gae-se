@@ -1,6 +1,5 @@
 package controller
 
-//import skinny.logging.Logger
 import common.TaskQueueHelper
 import skinny.micro._
 
