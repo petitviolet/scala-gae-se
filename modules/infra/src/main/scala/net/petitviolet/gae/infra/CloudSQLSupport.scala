@@ -1,9 +1,10 @@
 package net.petitviolet.gae.infra
 
-import java.time.{ LocalDateTime, ZoneId }
+import java.time.{LocalDateTime, ZoneId}
 
 import com.typesafe.config.Config
 import com.zaxxer.hikari.HikariDataSource
+import net.petitviolet.gae.common.MixInConfig
 import scalikejdbc._
 import scalikejdbc.config._
 import skinny.orm._
@@ -115,9 +116,9 @@ object Database {
     //    ConnectionPool.closeAll()
   }
 
-  private val dbs: Seq[Database] = Columva :: Nil
+  private val dbs: Seq[Database] = MyDatabase :: Nil
 
-  case object Columva extends Database('columva_v2) with MixInConfig
+  case object MyDatabase extends Database('my_database) with MixInConfig
 
   private val ZONE_ID = ZoneId.systemDefault()
   def now() = LocalDateTime.now(ZONE_ID)
@@ -137,25 +138,7 @@ sealed trait DatabaseMapper[T] extends SkinnyMapperBase[T] {
   override def schemaName = Some(db.dbName.name)
 }
 
-/**
- * Columva V2 DBを使用する場合はこちらをextendsする
- * @tparam T
- */
-trait ColumvaMapper[T] extends DatabaseMapper[T] with SkinnyCRUDMapper[T] {
-  lazy val db: Database = Database.Columva
-}
-
-trait ColumvaMapperNoId[T] extends DatabaseMapper[T] with SkinnyNoIdCRUDMapper[T] {
-  lazy val db: Database = Database.Columva
-}
-
-trait ColumvaMapperWithId[Id, T] extends DatabaseMapper[T] with SkinnyCRUDMapperWithId[Id, T] {
-  lazy val db: Database = Database.Columva
-  override def useExternalIdGenerator: Boolean = true
-  def generateId: Id
-}
-
-trait ColumvaJoinTable[T] extends DatabaseMapper[T] with SkinnyJoinTable[T] {
-  lazy val db: Database = Database.Columva
+trait MyDatabaseMapper[T] extends DatabaseMapper[T] with SkinnyCRUDMapper[T] {
+  lazy val db: Database = Database.MyDatabase
 }
 

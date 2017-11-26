@@ -1,0 +1,5 @@
+<env-var name="DB_DRIVER" value = "com.mysql.jdbc.GoogleDriver" />
+<env-var name="DB_URL" value = "jdbc:google:mysql://petit-violet:<ZONE>:<DB-INSTANCE>/<SCHEMA-NAME>" />
+<env-var name="DB_USER" value = "root" />
+<env-var name="DB_PASSWORD" value = "password" />
+
