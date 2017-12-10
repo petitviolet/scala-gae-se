@@ -1,6 +1,7 @@
 package net.petitviolet.gae.infra
 
 import java.time.{LocalDateTime, ZoneId}
+import java.util.UUID
 
 import com.typesafe.config.Config
 import com.zaxxer.hikari.HikariDataSource
@@ -10,44 +11,23 @@ import scalikejdbc.config._
 import skinny.orm._
 
 /**
- * DBの共通部分
- * Cloud SQLを想定している
+ * class for accessing Database
  */
 sealed abstract class Database(val dbName: Symbol) extends DBs with TypesafeConfigReader with TypesafeConfig {
   import Database.OptConfig
 
+  private def db = NamedDB(dbName)
+
   def withInTx[A](execution: DBSession => A): A = {
-    NamedDB(dbName) withinTx execution
+    db withinTx execution
   }
 
-  /**
-   * 通常のinsertはこちらを利用すること！
-   *
-   * @param execution
-   * @tparam A
-   * @return
-   */
   def localTx[A](execution: DBSession => A): A = {
-    NamedDB(dbName) localTx execution
-  }
-
-  /**
-   * トランザクション分離レベルを「ReadCommitted」にする
-   * バッチ等で並列にbulk insertを行うような処理の場合、こちらを利用すること！
-   *
-   * 以下、この関数を作成した経緯を記載
-   * https://fringe81.one-team.io/topics/8329
-   *
-   * @param execution
-   * @tparam A
-   * @return
-   */
-  def localReadCommittedTx[A](execution: DBSession => A): A = {
-    NamedDB(dbName) isolationLevel (IsolationLevel.ReadCommitted) localTx execution
+    db localTx execution
   }
 
   def withRead[A](execution: DBSession => A): A = {
-    NamedDB(dbName) readOnly execution
+    db readOnly execution
   }
 
   def readSession: DBSession = {
@@ -58,13 +38,11 @@ sealed abstract class Database(val dbName: Symbol) extends DBs with TypesafeConf
     NamedAutoSession(dbName)
   }
 
-  private[gae_support] def close(): Unit = {
+  private[infra] def close(): Unit = {
     source.close()
   }
 
-  // HikariCPの設定を反映する
-  // closeする際にDataSourceだとcloseが呼べないのでHikariDataSourceのままにしておく
-  private[gae_support] lazy val source: HikariDataSource = {
+  private[infra] lazy val source: HikariDataSource = {
     val _conf = config.getConfig(s"db.${dbName.name}")
 
     val ds = new HikariDataSource()
@@ -91,7 +69,7 @@ sealed abstract class Database(val dbName: Symbol) extends DBs with TypesafeConf
     ds
   }
 
-  private[gae_support] final def setup(): Unit = {
+  private[infra] final def setup(): Unit = {
     ConnectionPool.add(dbName, new DataSourceConnectionPool(source))
   }
 }
@@ -113,32 +91,40 @@ object Database {
 
   def shutDown(): Unit = {
     dbs foreach { _.close() }
-    //    ConnectionPool.closeAll()
   }
 
-  private val dbs: Seq[Database] = MyDatabase :: Nil
+  private lazy val dbs: Seq[Database] = MyDatabase :: Nil
 
   case object MyDatabase extends Database('my_database) with MixInConfig
 
-  private val ZONE_ID = ZoneId.systemDefault()
-  def now() = LocalDateTime.now(ZONE_ID)
+  private lazy val ZONE_ID = ZoneId.systemDefault()
+  def now(): LocalDateTime = LocalDateTime.now(ZONE_ID)
 }
 
 /**
- * DBに対するORM
- * @tparam T
+ * ORM
+ * @tparam T entity type
  */
 sealed trait DatabaseMapper[T] extends SkinnyMapperBase[T] {
-  def db: Database
+  protected def db: Database
 
   final override def connectionPoolName: Any = db.dbName
 
   override def autoSession: DBSession = db.readSession
 
-  override def schemaName = Some(db.dbName.name)
+  override lazy val schemaName = Some(db.dbName.name)
 }
 
-trait MyDatabaseMapper[T] extends DatabaseMapper[T] with SkinnyCRUDMapper[T] {
-  lazy val db: Database = Database.MyDatabase
+trait MyDatabaseMapper[T] extends DatabaseMapper[T] with SkinnyCRUDMapperWithId[String, T] {
+  protected lazy val db: Database = Database.MyDatabase
+  override def defaultAlias = syntax(getClass.getSimpleName.take(1))
+
+  override def useExternalIdGenerator: Boolean = true
+  override def generateId: String = Id.generate
+  override def idToRawValue(id: String): String = id
+  override def rawValueToId(value: Any): String = value.toString
 }
 
+object Id {
+  def generate: String = UUID.randomUUID().toString
+}
