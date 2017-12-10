@@ -14,18 +14,18 @@
 
 <appengine-web-app xmlns="http://appengine.google.com/ns/1.0">
     <application>{{PROJECT}}</application>
-    <module>batch</module>
+    <module>scala-gae-se</module>
     <version>{{VERSION}}</version>
     <runtime>java8</runtime>
     <threadsafe>true</threadsafe>
     <use-google-connector-j>true</use-google-connector-j>
-    <instance-class>B2</instance-class>
+    <instance-class>F1</instance-class>
     <warmup-requests-enabled>true</warmup-requests-enabled>
-    <basic-scaling>
-        <idle-timeout>1m</idle-timeout>
-        <max-instances>5</max-instances>
-    </basic-scaling>
-    <
+    <automatic-scaling>
+    </automatic-scaling>
+    <system-properties>
+        <property name="java.util.logging.config.file" value="WEB-INF/logging.properties"/>
+    </system-properties>
 
     <env-variables>
         {{ENV_VARIABLES}}
