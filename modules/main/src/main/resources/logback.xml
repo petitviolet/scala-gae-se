@@ -1,0 +1,17 @@
+<configuration>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Off these ones as they are annoying, and anyway we manage configuration ourself -->
+    <logger name="org.eclipse.jetty" level="OFF"/>
+    <logger name="com.zaxxer.hikari.pool.HikariPool" level="OFF"/>
+    <logger name="com.zaxxer.hikari.pool.PoolBase" level="OFF"/>
+
+    <root level="DEBUG">
+        <appender-ref ref="STDOUT"/>
+    </root>
+
+</configuration>
