@@ -32,7 +32,7 @@ lazy val metaMacroSettings: Seq[Def.Setting[_]] = Seq(
 lazy val SLF4J_VERSION = "1.7.25"
 lazy val commonDependencies = Seq(
    "com.iheart" %% "ficus" % "1.4.3",
-//  "org.slf4j" % "slf4j-api" % SLF4J_VERSION,
+  "org.slf4j" % "slf4j-api" % SLF4J_VERSION,
   "org.slf4j" % "slf4j-jdk14" % SLF4J_VERSION,
   "ch.qos.logback" % "logback-classic" % "1.2.3",
   "com.lihaoyi" %% "sourcecode" % "0.1.4",
